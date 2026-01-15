@@ -7,6 +7,7 @@ register_activation_hook(__FILE__, 'alfies_create_table');
 add_action('wp_ajax_submit_alfies_order', 'handle_alfies_order');
 add_action('wp_ajax_nopriv_submit_alfies_order', 'handle_alfies_order');
 add_action('admin_menu', 'alfies_admin_menu');
+add_action('elementor_pro/forms/new_record', 'handle_alfies_order', 10, 2);
 
 function alfies_enqueue_form_script() {
     wp_enqueue_script('alfies-form', plugin_dir_url(__FILE__) . 'form-handler.js', ['jquery'], '1.0', true);
@@ -15,24 +16,27 @@ function alfies_enqueue_form_script() {
     ]);
 }
 
-function handle_alfies_order() {
+function handle_alfies_order($record, $handler) {
     global $wpdb;
+    
+    $form_name = $record->get_form_settings('form_name');
+    // Optional: check form name if you have multiple forms
+    
+    $raw_fields = $record->get('fields');
     
     $data = [
         'order_id' => 'ORD-' . time(),
-        'name' => sanitize_text_field($_POST['name']),
-        'email' => sanitize_email($_POST['email']),
-        'phone' => sanitize_text_field($_POST['phone']),
-        'items' => sanitize_textarea_field($_POST['items']),
-        'no_people' => intval($_POST['no_people']),
-        'event_date' => sanitize_text_field($_POST['event_date']),
-        'message' => sanitize_textarea_field($_POST['message']),
-        'price' => floatval($_POST['price'])
+        'name' => sanitize_text_field($raw_fields['name']['value'] ?? ''),
+        'email' => sanitize_email($raw_fields['email']['value'] ?? ''),
+        'phone' => sanitize_text_field($raw_fields['phone']['value'] ?? ''),
+        'items' => sanitize_textarea_field($raw_fields['items']['value'] ?? ''),
+        'no_people' => intval($raw_fields['no_people']['value'] ?? 0),
+        'message' => sanitize_textarea_field($raw_fields['message']['value'] ?? ''),
+        'event_date' => '',
+        'price' => 0
     ];
     
     $wpdb->insert($wpdb->prefix . 'alfies_orders', $data);
-    
-    wp_send_json_success(['order_id' => $data['order_id']]);
 }
 
 function alfies_create_table() {
