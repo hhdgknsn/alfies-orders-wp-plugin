@@ -6,7 +6,6 @@
 register_activation_hook(__FILE__, 'alfies_create_table');
 add_action('wp_ajax_submit_alfies_order', 'handle_alfies_order');
 add_action('wp_ajax_nopriv_submit_alfies_order', 'handle_alfies_order');
-add_action('wp_enqueue_scripts', 'alfies_enqueue_form_script');
 add_action('admin_menu', 'alfies_admin_menu');
 
 function alfies_enqueue_form_script() {
