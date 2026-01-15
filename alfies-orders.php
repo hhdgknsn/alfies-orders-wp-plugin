@@ -60,3 +60,50 @@ function alfies_create_table() {
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
 }
+
+function alfies_admin_menu() {
+    add_menu_page(
+        'Alfies Orders',
+        'Orders',
+        'manage_options',
+        'alfies-orders',
+        'alfies_orders_page',
+        'dashicons-cart',
+        26
+    );
+}
+
+function alfies_orders_page() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'alfies_orders';
+    $orders = $wpdb->get_results(
+        $wpdb->prepare("SELECT * FROM {$table} ORDER BY created_at DESC")
+    );
+    ?>
+    <div class="wrap">
+        <h1>Alfies Orders</h1>
+        <table class="wp-list-table widefat fixed striped">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach($orders as $order): ?>
+                <tr>
+                    <td><?php echo esc_html($order->order_id); ?></td>
+                    <td><?php echo esc_html($order->name); ?></td>
+                    <td><?php echo esc_html($order->email); ?></td>
+                    <td><?php echo esc_html($order->event_date); ?></td>
+                    <td><?php echo esc_html($order->status); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
+}
