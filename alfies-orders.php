@@ -3,9 +3,18 @@
 * Plugin Name: Alfies Orders
 * Version: 1.0
 */
-
+register_activation_hook(__FILE__, 'alfies_create_table');
 add_action('wp_ajax_submit_alfies_order', 'handle_alfies_order');
 add_action('wp_ajax_nopriv_submit_alfies_order', 'handle_alfies_order');
+add_action('wp_enqueue_scripts', 'alfies_enqueue_form_script');
+add_action('admin_menu', 'alfies_admin_menu');
+
+function alfies_enqueue_form_script() {
+    wp_enqueue_script('alfies-form', plugin_dir_url(__FILE__) . 'form-handler.js', ['jquery'], '1.0', true);
+    wp_localize_script('alfies-form', 'alfiesAjax', [
+        'ajaxurl' => admin_url('admin-ajax.php')
+    ]);
+}
 
 function handle_alfies_order() {
     global $wpdb;
@@ -26,8 +35,6 @@ function handle_alfies_order() {
     
     wp_send_json_success(['order_id' => $data['order_id']]);
 }
-
-register_activation_hook(__FILE__, 'alfies_create_table');
 
 function alfies_create_table() {
     global $wpdb;
