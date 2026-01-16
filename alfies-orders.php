@@ -20,8 +20,7 @@ function handle_alfies_order($record, $handler) {
     global $wpdb;
     
     $form_name = $record->get_form_settings('form_name');
-    // Optional: check form name if you have multiple forms
-    
+
     $raw_fields = $record->get('fields');
     
     $data = [
@@ -76,6 +75,16 @@ function alfies_admin_menu() {
     );
 }
 
+function alfies_time_ago($datetime) {
+    $timestamp = strtotime($datetime);
+    $diff = time() - $timestamp;
+    
+    if ($diff < 60) return $diff . ' seconds ago';
+    if ($diff < 3600) return floor($diff / 60) . ' minutes ago';
+    if ($diff < 86400) return floor($diff / 3600) . ' hours ago';
+    return floor($diff / 86400) . ' days ago';
+}
+
 function alfies_orders_page() {
     global $wpdb;
     $table = $wpdb->prefix . 'alfies_orders';
@@ -92,6 +101,7 @@ function alfies_orders_page() {
                     <th>Name</th>
                     <th>Email</th>
                     <th>Date</th>
+                    <th>Time Ago</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -101,7 +111,8 @@ function alfies_orders_page() {
                     <td><?php echo esc_html($order->order_id); ?></td>
                     <td><?php echo esc_html($order->name); ?></td>
                     <td><?php echo esc_html($order->email); ?></td>
-                    <td><?php echo esc_html($order->event_date); ?></td>
+                    <td><?php echo date('M j, Y g:i A', strtotime($order->created_at)); ?></td>
+                    <td><?php echo alfies_time_ago($order->created_at); ?></td>
                     <td><?php echo esc_html($order->status); ?></td>
                 </tr>
                 <?php endforeach; ?>
