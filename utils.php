@@ -51,6 +51,35 @@ function alfies_time_ago($datetime) {
     return floor($diff / 86400) . ' days ago';
 }
 
+function alfies_log_changes($order_id, $old_data, $new_data) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'alfies_order_changelog';
+    $user_id = get_current_user_id();
+    
+    $fields = ['name', 'email', 'phone', 'items', 'no_people', 'event_date', 'message', 'price', 'status'];
+    
+    foreach ($fields as $field) {
+        $old_val = $old_data->$field ?? '';
+        $new_val = $new_data[$field] ?? '';
+        
+        // Normalize event_date - treat 0000-00-00, NULL, and empty as same
+        if ($field === 'event_date') {
+            if ($old_val === '0000-00-00' || $old_val === null) $old_val = '';
+            if ($new_val === '0000-00-00' || $new_val === null) $new_val = '';
+        }
+        
+        if ($old_val != $new_val) {
+            $wpdb->insert($table, [
+                'order_id' => $order_id,
+                'user_id' => $user_id,
+                'field_name' => $field,
+                'old_value' => $old_val,
+                'new_value' => $new_val
+            ]);
+        }
+    }
+}
+
 function build_customer_email($name, $items, $no_people, $pricing) {
     $items_html = nl2br($items);
     $price_display = '£' . number_format($pricing['total'], 2);

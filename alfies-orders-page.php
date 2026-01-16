@@ -7,7 +7,6 @@ function alfies_orders_page() {
     if (isset($_GET['view_order'])) {
         $order_id = sanitize_text_field($_GET['view_order']);
         
-        // Handle form submission
         if (isset($_POST['save_order']) && check_admin_referer('save_order_' . $order_id)) {
             $old_order = $wpdb->get_row($wpdb->prepare(
                 "SELECT * FROM {$table} WHERE order_id = %s",
@@ -62,12 +61,13 @@ function alfies_orders_page() {
             }
 
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem !important;
                 margin-bottom: 20px;
                 color: #fff;
                 text-transform: uppercase;
                 font-family: 'Poppins', Arial, Helvetica, sans-serif;
-                font-weight: 600;
+                font-weight: 700 !important;
+                text-align: center;
             }
            
         </style>
@@ -77,7 +77,7 @@ function alfies_orders_page() {
                 style="color: #BD8D4B; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; position: absolute; left: 0;">
                     <span style="font-size: 18px;">←</span> Back to Orders
                 </a>
-                <h1 style="color: #fff; font-family: 'Poppins', Arial, sans-serif !important; font-weight: 500; text-align: center; margin: 0;">Order Details</h1>
+                <h1>Order Details</h1>
             </div>
             
             
@@ -164,7 +164,6 @@ function alfies_orders_page() {
             </form>
             
             <?php
-            // Display changelog
             $changelog = $wpdb->get_results($wpdb->prepare(
                 "SELECT c.*, u.display_name 
                 FROM {$wpdb->prefix}alfies_order_changelog c
@@ -194,8 +193,26 @@ function alfies_orders_page() {
                                     <td style="padding: 10px 12px; color: #6b7280; font-size: 13px;"><?php echo date('M j, g:i A', strtotime($log->changed_at)); ?></td>
                                     <td style="padding: 10px 12px; color: #2F403A;"><?php echo esc_html($log->display_name); ?></td>
                                     <td style="padding: 10px 12px; color: #2F403A; font-weight: 500;"><?php echo esc_html(ucwords(str_replace('_', ' ', $log->field_name))); ?></td>
-                                    <td style="padding: 10px 12px;"><code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #ef4444;"><?php echo esc_html(substr($log->old_value, 0, 50)) . (strlen($log->old_value) > 50 ? '...' : ''); ?></code></td>
-                                    <td style="padding: 10px 12px;"><code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #10b981;"><?php echo esc_html(substr($log->new_value, 0, 50)) . (strlen($log->new_value) > 50 ? '...' : ''); ?></code></td>
+                                    <td style="padding: 10px 12px;">
+                                        <code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #ef4444;">
+                                            <?php 
+                                            $display_old = ($log->field_name === 'event_date' && empty($log->old_value)) 
+                                                ? 'Not set' 
+                                                : esc_html(substr($log->old_value, 0, 50)) . (strlen($log->old_value) > 50 ? '...' : '');
+                                            echo $display_old;
+                                            ?>
+                                        </code>
+                                    </td>
+                                    <td style="padding: 10px 12px;">
+                                        <code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #10b981;">
+                                            <?php 
+                                            $display_new = ($log->field_name === 'event_date' && empty($log->new_value)) 
+                                                ? 'Not set' 
+                                                : esc_html(substr($log->new_value, 0, 50)) . (strlen($log->new_value) > 50 ? '...' : '');
+                                            echo $display_new;
+                                            ?>
+                                        </code>
+                                    </td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -223,7 +240,7 @@ function alfies_orders_page() {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 2rem;
+                gap: 3rem !important;
             }
 
             .card {
@@ -232,17 +249,17 @@ function alfies_orders_page() {
             }
 
             h1 {
-                font-size: 2rem;
+                font-size: 2rem !important;
                 margin-bottom: 20px;
                 color: #fff;
                 text-transform: uppercase;
                 font-family: 'Poppins', Arial, Helvetica, sans-serif;
-                font-weight: 600;
+                font-weight: 700 !important;
             }
            
         </style>
     <div class="wrap">
-        <h1 style="font-size: 2rem; margin-bottom: 20px; color: #fff; text-transform: uppercase; font-family: 'Poppins', Arial, Helvetica, sans-serif; font-weight: 500;">Alfies Orders</h1>
+        <h1>Alfies Orders</h1>
         <div style="background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
             <table class="wp-list-table widefat fixed striped" style="border: none;">
                 <thead>
@@ -251,6 +268,7 @@ function alfies_orders_page() {
                         <th style="padding: 15px; font-weight: 600; border: none; color: #2F403A; border-bottom: 3px solid #BD8D4B;">Name</th>
                         <th style="padding: 15px; font-weight: 600; border: none; color: #2F403A; border-bottom: 3px solid #BD8D4B;">Email</th>
                         <th style="padding: 15px; font-weight: 600; border: none; color: #2F403A; border-bottom: 3px solid #BD8D4B;">People</th>
+                        <th style="padding: 15px; font-weight: 600; border: none; color: #2F403A; border-bottom: 3px solid #BD8D4B;">Event Date</th>
                         <th style="padding: 15px; font-weight: 600; border: none; color: #2F403A; border-bottom: 3px solid #BD8D4B;">Price</th>
                         <th style="padding: 15px; font-weight: 600; border: none; color: #2F403A; border-bottom: 3px solid #BD8D4B;">Date</th>
                         <th style="padding: 15px; font-weight: 600; border: none; color: #2F403A; border-bottom: 3px solid #BD8D4B;">Status</th>
@@ -274,6 +292,15 @@ function alfies_orders_page() {
                         <td style="padding: 12px 15px;"><?php echo esc_html($order->name); ?></td>
                         <td style="padding: 12px 15px; color: #6b7280;"><?php echo esc_html($order->email); ?></td>
                         <td style="padding: 12px 15px;"><?php echo esc_html($order->no_people); ?></td>
+
+                        <td style="padding: 12px 15px; color: #6b7280;">
+                            <?php 
+                            echo ($order->event_date && $order->event_date != '0000-00-00') 
+                                ? date('M j, Y', strtotime($order->event_date)) 
+                                : 'Not set'; 
+                            ?>
+                        </td>
+                        
                         <td style="padding: 12px 15px; font-weight: 600; color: #BD8D4B;">£<?php echo number_format($order->price, 2); ?></td>
                         <td style="padding: 12px 15px; color: #6b7280;"><?php echo alfies_time_ago($order->created_at); ?></td>
                         <td style="padding: 12px 15px;">

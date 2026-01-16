@@ -23,7 +23,6 @@ function handle_alfies_order($record, $handler) {
     
     $fields = $record->get('fields');
     
-    // Extract data
     $name = sanitize_text_field($fields['name']['value'] ?? '');
     $email = sanitize_email($fields['email']['value'] ?? '');
     $phone = sanitize_text_field($fields['phone']['value'] ?? '');
@@ -31,10 +30,8 @@ function handle_alfies_order($record, $handler) {
     $no_people = intval($fields['no_people']['value'] ?? 0);
     $message = sanitize_textarea_field($fields['message']['value'] ?? '');
     
-    // Calculate pricing
     $pricing = calculate_order_price($items, $no_people);
     
-    // Build order data
     $data = [
         'order_id' => 'ORD-' . time(),
         'name' => $name,
@@ -47,18 +44,13 @@ function handle_alfies_order($record, $handler) {
         'price' => $pricing['total']
     ];
     
-    // Save to database
     $wpdb->insert($wpdb->prefix . 'alfies_orders', $data);
     
-    /*
-    // Send customer confirmation
     $customer_email = build_customer_email($name, $items, $no_people, $pricing);
     wp_mail($email, "Order Received - Alfie's Deli", $customer_email, ['Content-Type: text/html']);
     
-    // Send admin notification
     $admin_email = build_admin_email($name, $email, $phone, $items, $no_people, $message, $pricing);
     wp_mail('hollyhodgkinson11@gmail.com', "New Order - Alfie's Deli", $admin_email, ['Content-Type: text/html']);
-    */
 }
 
 function alfies_create_table() {
@@ -116,27 +108,4 @@ function alfies_create_changelog_table() {
     
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-}
-
-function alfies_log_changes($order_id, $old_data, $new_data) {
-    global $wpdb;
-    $table = $wpdb->prefix . 'alfies_order_changelog';
-    $user_id = get_current_user_id();
-    
-    $fields = ['name', 'email', 'phone', 'items', 'no_people', 'event_date', 'message', 'price', 'status'];
-    
-    foreach ($fields as $field) {
-        $old_val = $old_data->$field ?? '';
-        $new_val = $new_data[$field] ?? '';
-        
-        if ($old_val != $new_val) {
-            $wpdb->insert($table, [
-                'order_id' => $order_id,
-                'user_id' => $user_id,
-                'field_name' => $field,
-                'old_value' => $old_val,
-                'new_value' => $new_val
-            ]);
-        }
-    }
 }
