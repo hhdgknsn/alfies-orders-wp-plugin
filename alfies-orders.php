@@ -12,22 +12,44 @@ function handle_alfies_order($record, $handler) {
     global $wpdb;
     
     $form_name = $record->get_form_settings('form_name');
-
-    $raw_fields = $record->get('fields');
+    if ($form_name !== 'Order Form') return;
     
+    $fields = $record->get('fields');
+    
+    // Extract data
+    $name = sanitize_text_field($fields['name']['value'] ?? '');
+    $email = sanitize_email($fields['email']['value'] ?? '');
+    $phone = sanitize_text_field($fields['phone']['value'] ?? '');
+    $items = sanitize_textarea_field($fields['buffet_items']['value'] ?? '');
+    $no_people = intval($fields['no_people']['value'] ?? 0);
+    $message = sanitize_textarea_field($fields['message']['value'] ?? '');
+    
+    // Calculate pricing
+    $pricing = calculate_order_price($items, $no_people);
+    
+    // Build order data
     $data = [
         'order_id' => 'ORD-' . time(),
-        'name' => sanitize_text_field($raw_fields['name']['value'] ?? ''),
-        'email' => sanitize_email($raw_fields['email']['value'] ?? ''),
-        'phone' => sanitize_text_field($raw_fields['phone']['value'] ?? ''),
-        'items' => sanitize_textarea_field($raw_fields['items']['value'] ?? ''),
-        'no_people' => intval($raw_fields['no_people']['value'] ?? 0),
-        'message' => sanitize_textarea_field($raw_fields['message']['value'] ?? ''),
-        'event_date' => '',
-        'price' => 0
+        'name' => $name,
+        'email' => $email,
+        'phone' => $phone,
+        'items' => $items,
+        'no_people' => $no_people,
+        'message' => $message,
+        'event_date' => sanitize_text_field($fields['event_date']['value'] ?? ''),
+        'price' => $pricing['total']
     ];
     
+    // Save to database
     $wpdb->insert($wpdb->prefix . 'alfies_orders', $data);
+    
+    // Send customer confirmation
+    $customer_email = build_customer_email($name, $items, $no_people, $pricing);
+    wp_mail($email, "Order Received - Alfie's Deli", $customer_email, ['Content-Type: text/html']);
+    
+    // Send admin notification
+    $admin_email = build_admin_email($name, $email, $phone, $items, $no_people, $message, $pricing);
+    wp_mail('hollyhodgkinson11@gmail.com', "New Order - Alfie's Deli", $admin_email, ['Content-Type: text/html']);
 }
 
 function alfies_create_table() {
