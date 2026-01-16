@@ -38,6 +38,16 @@ function calculate_order_price($items, $no_people) {
     ];
 }
 
+function alfies_time_ago($datetime) {
+    $timestamp = strtotime($datetime);
+    $diff = time() - $timestamp;
+    
+    if ($diff < 60) return $diff . ' seconds ago';
+    if ($diff < 3600) return floor($diff / 60) . ' minutes ago';
+    if ($diff < 86400) return floor($diff / 3600) . ' hours ago';
+    return floor($diff / 86400) . ' days ago';
+}
+
 function build_customer_email($name, $items, $no_people, $pricing) {
     $items_html = nl2br($items);
     $price_display = '£' . number_format($pricing['total'], 2);
