@@ -41,7 +41,8 @@ function handle_alfies_order($record, $handler) {
         'no_people' => $no_people,
         'message' => $message,
         'event_date' => sanitize_text_field($fields['event_date']['value'] ?? ''),
-        'price' => $pricing['total']
+        'price' => $pricing['total'],
+        'created_at' => current_time('mysql')
     ];
     
     $wpdb->insert($wpdb->prefix . 'alfies_orders', $data);
