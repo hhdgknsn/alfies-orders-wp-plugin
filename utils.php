@@ -1,4 +1,3 @@
-
 <?php
 
 add_filter('wp_mail_from', function() {
@@ -40,15 +39,8 @@ function calculate_order_price($items, $no_people) {
     ];
 }
 
-
 function alfies_time_ago($datetime) {
-    $timestamp = strtotime($datetime);
-    $diff = time() - $timestamp;
-    
-    if ($diff < 60) return $diff . ' seconds ago';
-    if ($diff < 3600) return floor($diff / 60) . ' minutes ago';
-    if ($diff < 86400) return floor($diff / 3600) . ' hours ago';
-    return floor($diff / 86400) . ' days ago';
+    return human_time_diff(strtotime($datetime), current_time('timestamp')) . ' ago';
 }
 
 function alfies_log_changes($order_id, $old_data, $new_data) {
