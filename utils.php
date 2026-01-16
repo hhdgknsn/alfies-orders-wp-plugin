@@ -1,3 +1,4 @@
+
 <?php
 
 add_filter('wp_mail_from', function() {
@@ -7,6 +8,7 @@ add_filter('wp_mail_from', function() {
 add_filter('wp_mail_from_name', function() {
     return "Alfie's Deli";
 });
+
 
 function calculate_order_price($items, $no_people) {
     $items_lower = strtolower($items);
@@ -37,6 +39,7 @@ function calculate_order_price($items, $no_people) {
         'total' => $total
     ];
 }
+
 
 function alfies_time_ago($datetime) {
     $timestamp = strtotime($datetime);
